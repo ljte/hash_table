@@ -1,12 +1,19 @@
 #include "src/hash_table.h"
-#include "src/utils.h"
 #include "stdio.h"
+#include "time.h"
+#include "stdlib.h"
 
 int main() {
-    Hash_Table *ht = New_Hash_Table();
-    Del_Hash_Table(ht);
-    const char str[] = "Hello, world";
-    const int prime = get_prime_larger_than_(INT8_MAX);
-    printf("%d\n", prime);
+    srand(time(NULL));
+    Hash_Table *ht = HashTable_New();
+    HashTable_Insert(ht, "Hello", "World");
+    HashTable_Print(ht);
+    Ht_Item *item = HashTable_Find(ht, "Hello");
+    fprintf(stdout, "LEN: %ld CAP: %d\n", ht->len, ht->cap);
+    if (item != NULL)
+        fprintf(stdout, "ITEM: %s | %s", item->key, item->value);
+    else
+        printf("NULL\n")
+    HashTable_Del(ht);
     return 0;
 }

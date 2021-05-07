@@ -1,7 +1,7 @@
-SOURCE = main.c src/hash_table.c src/utils.c
+SOURCE = main.c src/hash_table.c
 OUTPUT = hash_table
-CFLAGS = -o $(OUTPUT) -lm
+ADDITIONAL_CFLAGS = -o $(OUTPUT) -lm
 
 all:
-	$(CC) $(SOURCE) $(CFLAGS)
+	$(CC) $(SOURCE) $(ADDITIONAL_CFLAGS)
 	./$(OUTPUT)
