@@ -15,9 +15,9 @@ static Ht_Item *New_Ht_Item(const char *key,
 
 Hash_Table *HashTable_New() {
     Hash_Table *ht = (Hash_Table *)malloc(sizeof(Hash_Table));
-    ht->len = 53;
-    ht->cap = 0;
-    ht->items = calloc(ht->len, sizeof(Ht_Item *));
+    ht->cap = 53;
+    ht->len = 0;
+    ht->items = calloc(ht->cap, sizeof(Ht_Item *));
     return ht;
 }
 
@@ -28,9 +28,9 @@ void Del_Ht_Item(Ht_Item *item) {
 }
 
 void HashTable_Del(Hash_Table *ht) {
-    for (int i = 0; i < ht->len; i++) {
+    for (int i = 0; i < ht->cap; i++) {
         Ht_Item *item = ht->items[i];
-        if (item != NULL)
+        if (item != NULL && item != &deleted_item)
             Del_Ht_Item(item);
     }
     free(ht->items);
@@ -38,9 +38,9 @@ void HashTable_Del(Hash_Table *ht) {
 }
 
 void HashTable_Print(Hash_Table *ht) {
-    for (int i = 0; i < ht->len; i++) {
+    for (int i = 0; i < ht->cap; i++) {
         Ht_Item *item = ht->items[i];
-        if (item != NULL) {
+        if (item != NULL && item != &deleted_item) {
             fprintf(stdout, "%s => %s\n", item->key, item->value);
         }
     }
@@ -70,25 +70,53 @@ void HashTable_Insert(Hash_Table *ht,
                       const char *key,
                       const char *val) {
     int i = 0;
-    int hash = double_hash(key, ht->len, i);
-    while (ht->items[hash] != NULL) {
-        hash = double_hash(key, ht->len, ++i);
+    int hash = double_hash(key, ht->cap, i);
+    Ht_Item *item= New_Ht_Item(key, val);
+    Ht_Item *cur_item = ht->items[hash];
+    while (cur_item != NULL) {
+        if (cur_item != &deleted_item) {
+            if (strcmp(cur_item->key, key) == 0) {
+                Del_Ht_Item(cur_item);
+                ht->items[hash] = item;
+                return;
+            }
+        }
+        hash = double_hash(key, ht->cap, ++i);
+        item = ht->items[hash];
     }
-    ht->items[hash] = New_Ht_Item(key, val);
-    ht->cap++;
+    ht->items[hash] = item;
+    ht->len++;
 }
 
-Ht_Item *HashTable_Find(Hash_Table *ht, const char *key) {
+char *HashTable_Find(Hash_Table *ht, const char *key) {
     int i = 0;
-    int hash = double_hash(key, ht->len, i);
+    int hash = double_hash(key, ht->cap, i);
     Ht_Item *item = ht->items[hash];
-    while (1) {
-        if (item == NULL) {
-            hash = double_hash(key, ht->len, ++i);
-            item = ht->items[hash];
-        } else if (strcpy(item->key, key) == 0) {
-            return item;
+    while (item != NULL) {
+        if (item != &deleted_item) {
+            if (strcmp(item->key, key) == 0)
+                return item->value;
         }
+        hash = double_hash(key, ht->cap, ++i);
+        item = ht->items[hash];
     }
     return NULL;
+}
+
+
+void HashTable_DeleteItem(Hash_Table *ht, const char *key) {
+    int i = 0;
+    int hash = double_hash(key, ht->cap, i);
+    Ht_Item *item = ht->items[hash];
+    while (item != NULL) {
+        if (item != &deleted_item) {
+            if (strcmp(item->key, key) == 0) {
+                Del_Ht_Item(item);
+                ht->items[hash] = &deleted_item;
+            }
+        }
+        hash = double_hash(key, ht->cap, ++i);
+        item = ht->items[hash];
+    }
+    ht->len--;
 }

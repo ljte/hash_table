@@ -7,13 +7,11 @@ int main() {
     srand(time(NULL));
     Hash_Table *ht = HashTable_New();
     HashTable_Insert(ht, "Hello", "World");
+    HashTable_Insert(ht, "Some", "Word");
+    HashTable_DeleteItem(ht, "Hello");
+    HashTable_Insert(ht, "Some", "Dima");
     HashTable_Print(ht);
-    Ht_Item *item = HashTable_Find(ht, "Hello");
     fprintf(stdout, "LEN: %ld CAP: %d\n", ht->len, ht->cap);
-    if (item != NULL)
-        fprintf(stdout, "ITEM: %s | %s", item->key, item->value);
-    else
-        printf("NULL\n")
     HashTable_Del(ht);
     return 0;
 }

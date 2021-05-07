@@ -9,6 +9,8 @@ typedef struct {
     char *value;
 } Ht_Item;
 
+static Ht_Item deleted_item = {NULL, NULL};
+
 typedef struct {
     size_t len;
     int cap;
@@ -22,7 +24,8 @@ Hash_Table *HashTable_New();
 void HashTable_Del(Hash_Table *);
 void HashTable_Insert(Hash_Table *, const char *, const char *);
 void HashTable_Print(Hash_Table *);
-Ht_Item *HashTable_Find(Hash_Table *ht, const char *key);
+char *HashTable_Find(Hash_Table *, const char *);
+void HashTable_DeleteItem(Hash_Table *, const char *);
 
 int hash(const char *, int, int);
 int double_hash(const char *, const int, const int);
